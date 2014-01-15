@@ -1,7 +1,7 @@
 module ApnMachine
   module Server
     class Server
-        attr_accessor :client, :bind_address, :port, :redis
+        attr_accessor :client, :bind_address, :port, :redis, :redis_db
 
       def initialize(pem, pem_passphrase = nil, redis_host = '127.0.0.1', redis_port = 6379, redis_uri = nil, redis_db = 0, apn_host = 'gateway.push.apple.com', apn_port = 2195, log = '/apnmachined.log')
         @client = ApnMachine::Server::Client.new(pem, pem_passphrase, apn_host, apn_port)
@@ -11,7 +11,7 @@ module ApnMachine
         else
           @redis = Redis.new(:host => redis_host, :port => redis_port)
         end
-        @redis.select redis_db
+        @redis_db = redis_db
     
         #set logging options
         if log == STDOUT
@@ -30,6 +30,7 @@ module ApnMachine
 
       def start!
         EM.synchrony do
+          @redis.select @redis_db
           EM::Synchrony.add_periodic_timer(5) { @flog.flush if @flog }
           Config.logger.info "Connecting to Apple Servers"
           @client.connect!
