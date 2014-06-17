@@ -2,7 +2,7 @@ source "http://rubygems.org"
 # Add dependencies required to use your gem here.
 gem "em-synchrony"
 gem "daemons"
-gem 'yajl-ruby'
+gem 'multi_json'
 gem "redis", ">= 2.2.0"
 gem "hiredis", ">= 0.3.1"
 gem "i18n"
