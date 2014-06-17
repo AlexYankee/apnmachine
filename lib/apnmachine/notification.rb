@@ -1,4 +1,4 @@
-require 'yajl' unless defined?(Yajl)
+require 'multi_json' unless defined?(MultiJson)
 
 module ApnMachine
   class Notification
@@ -16,13 +16,13 @@ module ApnMachine
       end
       p.merge!(custom) if send(:custom)
 
-      j = Yajl::Encoder.encode(p)
+      j = MultiJson.dump(p)
       raise PayloadTooLarge.new("The payload is larger than allowed: #{j.length}") if j.size > PAYLOAD_MAX_BYTES
 
       p[:device_token] = device_token
       raise NoDeviceToken.new("No device token") unless device_token
 
-      Yajl::Encoder.encode(p)
+      MultiJson.dump(p)
     end
 
     def push
@@ -31,13 +31,13 @@ module ApnMachine
     end
 
     def self.to_bytes(encoded_payload)
-      notif_hash = Yajl::Parser.parse(encoded_payload)
+      notif_hash = MultiJson.load(encoded_payload)
 
       device_token = notif_hash.delete('device_token')
       bin_token = [device_token].pack('H*')
       raise NoDeviceToken.new("No device token") unless device_token
 
-      j = Yajl::Encoder.encode(notif_hash)
+      j = MultiJson.dump(notif_hash)
       raise PayloadTooLarge.new("The payload is larger than allowed: #{j.length}") if j.size > PAYLOAD_MAX_BYTES
 
       Config.logger.debug "TOKEN:#{device_token} | ALERT:#{notif_hash.inspect}"
