@@ -29,6 +29,7 @@ module ApnMachine
       end
 
       def start!
+        TCPSocket = EventMachine::Synchrony::TCPSocket
         EM.synchrony do
           @redis.select @redis_db
           EM::Synchrony.add_periodic_timer(5) { @flog.flush if @flog }
@@ -57,6 +58,7 @@ module ApnMachine
               #sending notification
               Config.logger.debug 'Sending notification to APN'
               @client.write(notif_bin)
+              EventMachine::Synchrony.sleep(0.001)
               Config.logger.debug 'Notif sent'
           
             rescue Errno::EPIPE, OpenSSL::SSL::SSLError, Errno::ECONNRESET, Errno::ETIMEDOUT
