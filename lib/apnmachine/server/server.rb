@@ -29,7 +29,6 @@ module ApnMachine
       end
 
       def start!
-        TCPSocket = EventMachine::Synchrony::TCPSocket
         EM.synchrony do
           @redis.select @redis_db
           EM::Synchrony.add_periodic_timer(5) { @flog.flush if @flog }
